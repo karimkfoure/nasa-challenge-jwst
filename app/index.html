@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .videoView2 {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview {
+            /* background-color: blue; */
+            height: 25%;
+            width: 25%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .webcam, .output_canvas, .output {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            object-fit: cover;
+        }
+        
+        .mainImage {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+
+        .output_image_canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .dialogo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            padding: 20px;
+            background-color: grey;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: opacity 0.5s, visibility 0.5s;
+            border-radius: 15px;
+        }
+        .oculto {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .botonMostrar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .botonMostrar1 {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .botonOcultar {
+            position: center;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .botonOcultar2 {
+            position: center;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+        }
+        #botonMostrarDialogo2 {
+            display: none;
+        }
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            color: #ffffff;
+            text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 30px #00d4ff, 0 0 40px #00d4ff;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .texto {
+            color: #000000;
+            font-size: 1em;
+            font-family: 'Orbitron', sans-serif;
+        }
+    </style>
+    <!-- <script src="starDetectionWorker.js"></script> -->
+</head>
+<body>
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script type="module" src="./script.js"></script>
+
+    <div id="liveView" class="videoView2">
+        <div id="mainImage" class="mainImage">
+            <canvas class="output_image_canvas" id="imageCanvas"></canvas>
+        </div>
+        <div id="preview" class="preview">
+            <video id="webcam" class="webcam" autoplay playsinline style="display: none;"></video>
+            <canvas class="output_canvas" id="output_canvas"></canvas>
+            <p id='gesture_output' class="output"></p>
+        </div>
+    </div>
+
+    <div id="dialogo1" class="dialogo">
+        <p class="title">Descubre tu propia galaxia</p>
+        <p class="texto">En este espacio, puedes convertirte en el creador de tu propia obra audiovisual. Imagina un lugar donde las estrellas están al alcance de tu mano y cada pixel de esta imagen del Telescopio James Webb tiene algo que contar.</p>
+        <button id="botonOcultar1" class="botonOcultar2">Comenzar!</button>
+    </div>
+    <div id="dialogo2" class="dialogo oculto">
+        <p class="title">Interacciones</p>
+        <p class="texto">Usa tus manos para interactuar con la imagen:</p>
+        <p class="texto"><b>Zoom:</b> agarra el espacio cerrando ambos puños y alejándolos o acercándolos entre sí</p>
+        <p class="texto"><b>Movimiento:</b> cierra un puño y deplázalo para recorrer la imagen</p>
+        <p class="texto"><b>Colores:</b> mueve tus manos para modificar los colores de la imagen</p>
+        <p class="texto"><b>Sonido:</b> usa una de tus manos abiertas para desplazarte por la imagen y escuchar el espacio</p>
+        <button id="botonOcultar2" class="botonOcultar fa fa-check"></button>
+    </div>
+    <button id="botonMostrar1" class="botonMostrar1 fa fa-home" style="display: none;"/>
+    <button id="botonMostrar2" class="botonMostrar fa fa-bars"/>
+
+    <script>
+        const dialogo1 = document.getElementById('dialogo1');
+        const dialogo2 = document.getElementById('dialogo2');
+        const botonOcultar1 = document.getElementById('botonOcultar1');
+        const botonOcultar2 = document.getElementById('botonOcultar2');
+        const botonMostrar1 = document.getElementById('botonMostrar1');
+        const botonMostrar2 = document.getElementById('botonMostrar2');
+
+        botonOcultar1.addEventListener('click', () => {
+            dialogo1.classList.add('oculto');
+            setTimeout(() => {
+                botonMostrar1.style.display = 'block';
+            }, 500);
+        });
+
+        botonOcultar2.addEventListener('click', () => {
+            dialogo2.classList.add('oculto');
+            setTimeout(() => {
+                botonMostrar2.style.display = 'block';
+            }, 500);
+        });
+
+        botonMostrar1.addEventListener('click', () => {
+            dialogo1.classList.remove('oculto');
+            botonMostrar1.style.display = 'none';
+        });
+
+        botonMostrar2.addEventListener('click', () => {
+            dialogo2.classList.remove('oculto');
+            botonMostrar2.style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
